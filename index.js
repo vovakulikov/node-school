@@ -10,12 +10,8 @@ const utils = {
                 if (this.readyState != 4) return;
 
                 if (xhr.status != 200) {
-                    // обработать ошибку
-                    //alert(xhr.status + ': ' + xhr.statusText);
                     reject({status: xhr.status, text: xhr.statusText})
                 } else {
-                    // вывести результат
-                    //alert(xhr.responseText);
                     resolve(xhr.responseText);
                 }
             }
@@ -58,7 +54,6 @@ class CustomForm {
                     return sum;
                 }, 0);
 
-
                 return (maskCondition && (sumTel <= 30))
             }
         };
@@ -95,22 +90,53 @@ class CustomForm {
         } 
     }
 
+    changeUIBySuccess () {
+        console.log('success')
+    }
+
+    changeUIByError (res) {
+        console.log('error ', res)
+    }
+
+    resetUIContainer() {
+        this.resultContainer.classList.remove('success');
+        this.resultContainer.classList.remove('error');
+        this.resultContainer.classList.remove('progress');.
+
+        this.resetUIContainer.innerHTML = '';
+    }
+
+    repeatRequest (res) {
+        console.log('repeat ', res)
+    }
+
+    makeRequest () {
+        const URL = this.form.action;
+        const method = this.form.method;
+
+        return utils.makeRequest( method, URL);    
+    }
+
+    pickAction(responce) {
+        const resObject = JSON.parse(responce);
+        const strategy = {
+             'success': this.changeUIBySuccess,
+             'error':  this.changeUIByError,
+             'progress':  this.repeatRequest
+        }
+
+        this.resetUIContainer();
+        strategy[resObject.status](resObject);
+    }
+
     submit(e) {
         e.preventDefault();
-
         const formValidate = this.validate();
 
         if (formValidate.isValid) {
-            const URL = this.form.action;
-            const method = this.form.method;
-            console.log('ajax request', this.form, URL, method);
-            utils.makeRequest( method, URL)
-                .then(responce => {
-                    console.log(responce);
-                })
-            
-        } else {
-            console.log('highlight input with error data')
+            this.makeRequest()
+            .then(this.pickAction.bind(this))
+            .catch()   
         }
     }
 
