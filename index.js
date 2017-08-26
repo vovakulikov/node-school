@@ -40,12 +40,6 @@ class CustomForm {
  * @property {Object} resultContainer - Обьект элемента для рендеринга результата ответа от сервера.
  */
 
-/**
-  * Интерфейс обьекта валидации формы
-  * @typedef {Object} ValidateObject
-  */
-
-
 
 	/**
      * Конструктор класса. 
@@ -111,9 +105,10 @@ class CustomForm {
 		});
 	}
 
-    /**
+	/**
+	 * Устанавливет классы для полей не прошедших валидацию
      * 
-     * @param {*} param0 
+     * @param {ValidateObject} - Обьект с результатами валидации формы
      */
 	highlightErrorFields({ errorFields }) {
 		errorFields.forEach(errorField => {
@@ -121,6 +116,9 @@ class CustomForm {
 		});
 	}
 
+	/**
+	 * Cбрасывает классы у полей
+	 */
 	resetHighlights() {
 		const elements = Array.from(this.form.elements);
 
@@ -131,6 +129,13 @@ class CustomForm {
 		});
 	}
 
+	/**
+	 * Функция установки UI полей в корректное состояние 
+	 * Сбросить все состояния для всех полей.
+	 * Установить класы тем, полям, которые не прошли валидацию
+	 * 
+	 * @param {ValidateObject} - Обьект с результатами валидации формы
+	 */
 	changeInputsUI(validateData) {
 		this.resetHighlights();
 
@@ -139,26 +144,44 @@ class CustomForm {
 		}
 	}
 
-	changeUIBySuccess() {
 
+	/**
+	 * Метод установки контейнеру для результата
+	 * нужного состояния UI при положительном ответе сервера.
+	 */
+	changeUIBySuccess() {
 		this.resultContainer.classList.add('success');
 		this.resultContainer.innerHTML = 'Success';
 
 		this.setDisabledButton(false);
 	}
 
+	/**
+	 * Метод установки контейнеру для результата
+	 * нужного состояния UI при отрицательном ответе сервера.
+	 * @param {Object} - Обьект ответа от сервера 
+	 */
 	changeUIByError(res) {
-
 		this.resultContainer.classList.add('error');
 		this.resultContainer.innerHTML = res.reason;
 
 		this.setDisabledButton(false);
 	}
 
+	/**
+	 * Метод установки контейнеру для результата
+	 * нужного состояния UI при прогресс-состоянии сервера.
+	 * @param {Object} - Обьект ответа от сервера 
+	 */
 	changeUIByProgress() {
 		this.resultContainer.classList.add('progress');
 	}
 
+	/**
+	 * Установить кнопку
+	 * 
+	 * @param {boolean} state 
+	 */
 	setDisabledButton(state) {
 		this.submitButton.disabled = state;
 	}
@@ -196,6 +219,18 @@ class CustomForm {
 		strategy[resObject.status].apply(this, [resObject]);
 	}
 
+	/**
+  * Интерфейс обьекта валидации формы
+  * @typedef {Object} ValidateObject
+  * @property {boolean} isValid - признак валидации
+  * @property {string[]} errorFields - Имена инпутов не прошедших валидацию
+*/
+
+	/**
+	 * Метод валидации формы по стратегиям для каждого инпута
+	 * 
+	 * @returns {ValidateObject}
+	 */
 	validate() {
 		const elements = Array.from(this.form.elements);
 
@@ -221,6 +256,12 @@ class CustomForm {
 		return validateData;
 	}
 
+	/**
+	 * Метод возвращает объект с данными формы,
+	 * где имена свойств совпадают с именами инпутов.
+	 * 
+	 * @returns {Object}
+	 */
 	getData() {
 		const elements = Array.from(this.form.elements);
 
@@ -235,6 +276,13 @@ class CustomForm {
 		}, {});
 	}
 
+	/**
+	 *  Принимает объект с данными формы и устанавливает их
+	 *  инпутам формы.
+	 *  Поля кроме phone, fio, email игнорируются.
+	 * 
+	 * @param {Objecct} data 
+	 */
 	setData(data) {
 		this.trackedInputs.forEach(name => {
 			if (data.hasOwnProperty(name)) {
@@ -243,8 +291,13 @@ class CustomForm {
 		});
 	}
 
-	submit() {
 
+	/**
+	 * Метод submit выполняет валидацию полей и
+	 * отправку ajax-запроса, если валидация пройдена. 
+	 * Вызывается по клику на кнопку отправить.
+	 */
+	submit() {
 		const formValidate = this.validate();
 
 		if (formValidate.isValid) {
