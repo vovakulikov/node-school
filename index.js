@@ -1,230 +1,226 @@
 const utils = {
-    makeRequest: (method, URL, body = null) => {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
+	makeRequest: (method, URL, body = null) => {
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
 
-            xhr.open(method, URL, true);
-            xhr.send(body);
+			xhr.open(method, URL, true);
+			xhr.send(body);
 
-            xhr.onreadystatechange = function() {
-                if (this.readyState != 4) return;
+			xhr.onreadystatechange = function() {
+				if (this.readyState != 4) return;
 
-                if (xhr.status != 200) {
-                    reject({status: xhr.status, text: xhr.statusText})
-                } else {
-                    resolve(xhr.responseText);
-                }
-            }
-
-        });
-    }
+				if (xhr.status != 200) {
+					reject({ status: xhr.status, text: xhr.statusText });
+				} else {
+					resolve(xhr.responseText);
+				}
+			};
+		});
+	}
 };
 
-
 class CustomForm {
-    constructor ({formElement, submitButton, trackedInputs, resultContainer}) {
+	constructor({ formElement, submitButton, trackedInputs, resultContainer }) {
+		this.form = formElement;
+		this.trackedInputs = trackedInputs;
+		this.submitButton = submitButton;
+		this.resultContainer = resultContainer;
 
-        this.form = formElement;
-        this.trackedInputs = trackedInputs;
-        this.submitButton = submitButton;
-        this.resultContainer = resultContainer;
+		this.validateStrategy = {
+			fio: value => {
+				const trimString = value.replace(/\s+/g, ' ').trim();
 
-        this.validateStrategy =  {
+				return trimString.split(' ').length === 3;
+			},
 
-            'fio': (value) => { 
-                const trimString = value.replace(/\s+/g,' ').trim();
+			email: value => {
+				const correctDomens = [
+					'ya.ru',
+					'yandex.ru',
+					'yandex.ua',
+					'yandex.by',
+					'yandex.kz',
+					'yandex.com'
+				];
+				const [emailBody, emailDomen] = value.split('@');
 
-                return (trimString.split(' ').length === 3)
-            },
+				return correctDomens.includes(emailDomen) && emailBody;
+			},
 
-            'email': (value) => {
-                const correctDomens = ['ya.ru', 'yandex.ru',
-                                       'yandex.ua', 'yandex.by', 
-                                       'yandex.kz', 'yandex.com'];
-                const [emailBody, emailDomen] = value.split('@'); 
+			phone: value => {
+				const regPattert = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/;
+				const maskCondition = regPattert.test(value);
 
-                return (correctDomens.includes(emailDomen) && emailBody);
-            }, 
+				const telNumbers = value.replace(/\D+/g, '').split('');
+				const sumTel = telNumbers.reduce((sum, number) => {
+					sum += +number;
+					return sum;
+				}, 0);
 
-            'phone': (value) => {
-                const regPattert = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/ ;
-                const maskCondition = regPattert.test(value);
+				return maskCondition && sumTel <= 30;
+			}
+		};
 
-                const telNumbers = value.replace(/\D+/g,"").split('');
-                const sumTel = telNumbers.reduce((sum, number) => {
-                    sum += +number;
-                    return sum;
-                }, 0);
+		this.addEventListeners();
+	}
 
-                return (maskCondition && (sumTel <= 30))
-            }
-        };
+	addEventListeners() {
+		this.submitButton.addEventListener('click', e => {
+			e.preventDefault();
+			this.submit();
+		});
+	}
 
-        this.addEventListeners();
+	highlightErrorFields({ errorFields }) {
+		errorFields.forEach(errorField => {
+			this.form.elements[errorField].classList.add('error');
+		});
+	}
 
-    }
+	resetHighlights() {
+		const elements = Array.from(this.form.elements);
 
-    addEventListeners() {
-        this.submitButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.submit();
-        });
-    }
+		elements.forEach(element => {
+			if (element.name) {
+				element.classList.remove('error');
+			}
+		});
+	}
 
-    highlightErrorFields ({ errorFields }) {
-        errorFields.forEach(errorField => {
-            this.form.elements[errorField].classList.add('error')
-        })
-    }
+	changeInputsUI(validateData) {
+		this.resetHighlights();
 
-    resetHighlights () {
-         const elements = Array.from(this.form.elements);
+		if (!validateData.isValid) {
+			this.highlightErrorFields(validateData);
+		}
+	}
 
-         elements.forEach(element => {
-             if (element.name) {
-                 element.classList.remove('error');
-             }
-         });
-    }
+	changeUIBySuccess() {
 
-    changeInputsUI (validateData) {
-        this.resetHighlights();
+		this.resultContainer.classList.add('success');
+		this.resultContainer.innerHTML = 'Success';
 
-        if (!validateData.isValid) {
-             this.highlightErrorFields(validateData)
-        } 
-    }
+		this.setDisabledButton(false);
+	}
 
-    changeUIBySuccess () {
-        console.log('success', this);
+	changeUIByError(res) {
 
-        this.resultContainer.classList.add('success');
-        this.resultContainer.innerHTML = 'Success';
+		this.resultContainer.classList.add('error');
+		this.resultContainer.innerHTML = res.reason;
 
-        this.setDisabledButton(false);
-    }
+		this.setDisabledButton(false);
+	}
 
-    changeUIByError (res) {
-        console.log('error ', res);
+	changeUIByProgress() {
+		this.resultContainer.classList.add('progress');
+	}
 
-        this.resultContainer.classList.add('error');
-        this.resultContainer.innerHTML = res.reason;
+	setDisabledButton(state) {
+		this.submitButton.disabled = state;
+	}
 
-        this.setDisabledButton(false);
-    }
+	resetUIContainer() {
+		this.resultContainer.classList.remove('success');
+		this.resultContainer.classList.remove('error');
+		this.resultContainer.classList.remove('progress');
 
-    changeUIByProgress () {
-        this.resultContainer.classList.add('progress');
-    }
+		this.resultContainer.innerHTML = '';
+	}
 
-    setDisabledButton (state) {
-        this.submitButton.disabled = state;
-    }
+	repeatRequest(res) {
 
-    resetUIContainer() {
-        this.resultContainer.classList.remove('success');
-        this.resultContainer.classList.remove('error');
-        this.resultContainer.classList.remove('progress');
+		this.changeUIByProgress();
+		setTimeout(this.submit.bind(this), res.timeout);
+	}
 
-        this.resultContainer.innerHTML = '';
-    }
+	makeRequest() {
+		const URL = this.form.action;
+		const method = this.form.method;
 
-    repeatRequest (res) {
-        console.log('repeat ', res)
+		return utils.makeRequest(method, URL);
+	}
 
-        this.changeUIByProgress();
-        setTimeout(this.submit.bind(this), res.timeout);
-    }
+	pickAction(responce) {
+		const resObject = JSON.parse(responce);
+		const strategy = {
+			success: this.changeUIBySuccess,
+			error: this.changeUIByError,
+			progress: this.repeatRequest
+		};
 
-    makeRequest () {
-        const URL = this.form.action;
-        const method = this.form.method;
+		this.resetUIContainer();
+		strategy[resObject.status].apply(this, [resObject]);
+	}
 
-        return utils.makeRequest( method, URL);    
-    }
+	validate() {
+		const elements = Array.from(this.form.elements);
 
-    pickAction(responce) {
-        const resObject = JSON.parse(responce);
-        const strategy = {
-             'success': this.changeUIBySuccess,
-             'error':  this.changeUIByError,
-             'progress':  this.repeatRequest
-        }
+		const validateData = elements.reduce(
+			(validateData, input) => {
+				const name = input.name;
+				const currentStrategy = this.validateStrategy[name];
 
-        this.resetUIContainer();
-        strategy[resObject.status].apply(this, [resObject]);
-    }
+				if (!currentStrategy) return validateData;
 
+				if (!currentStrategy(input.value)) {
+					validateData.isValid = false;
+					validateData.errorFields.push(name);
+				}
 
+				return validateData;
+			},
+			{ isValid: true, errorFields: [] }
+		);
 
-    validate () {
-        const elements = Array.from(this.form.elements);
+		this.changeInputsUI(validateData);
 
-        const validateData = elements.reduce((validateData, input) => {
-            const name = input.name;
-            const currentStrategy = this.validateStrategy[name];
+		return validateData;
+	}
 
-            if (!currentStrategy) return validateData;
-    
-            if (!(currentStrategy(input.value))) {
-                validateData.isValid = false;
-                validateData.errorFields.push(name);
-            }
+	getData() {
+		const elements = Array.from(this.form.elements);
 
-            return validateData; 
-        }, { isValid: true, errorFields: [] });
+		return elements.reduce((formData, element) => {
+			const name = element.name;
 
-        this.changeInputsUI(validateData);
+			if (name) {
+				formData[name] = element.value;
+			}
 
-        return validateData;
-    }
+			return formData;
+		}, {});
+	}
 
-    getData () {
-        const elements = Array.from(this.form.elements);
+	setData(data) {
+		this.trackedInputs.forEach(name => {
+			if (data.hasOwnProperty(name)) {
+				this.form.elements[name].value = data[name];
+			}
+		});
+	}
 
-        return elements.reduce((formData, element) => {
-            const name = element.name;
+	submit() {
 
-            if (name) { formData[name] = element.value }
+		const formValidate = this.validate();
 
-            return formData; 
-        }, {});
-    }
-    
-    setData (data) {
-        this.trackedInputs.forEach((name) => {
-            if (data.hasOwnProperty(name)) {
-                this.form.elements[name].value = data[name];
-            }
-        });
-    }
-
-    submit() {
-        console.log('---------ЗАПРОС НА СЕРВЕР-----------');
-    
-        const formValidate = this.validate();
-
-        if (formValidate.isValid) {
-            this.setDisabledButton(true);
-            this.makeRequest()
-                .then(this.pickAction.bind(this))
-                .catch()   
-        } else {
-            this.setDisabledButton(false);
-        }
-    }
-
+		if (formValidate.isValid) {
+			this.setDisabledButton(true);
+			this.makeRequest().then(this.pickAction.bind(this)).catch();
+		} else {
+			this.setDisabledButton(false);
+		}
+	}
 }
 
 const form = new CustomForm({
-    formElement: document.querySelector('#myForm'), 
-    submitButton: document.querySelector('#submitButton'),
-    trackedInputs: ['fio','phone','email'],
-    resultContainer: document.querySelector('#resultContainer')
+	formElement: document.querySelector('#myForm'),
+	submitButton: document.querySelector('#submitButton'),
+	trackedInputs: ['fio', 'phone', 'email'],
+	resultContainer: document.querySelector('#resultContainer')
 });
 
 form.setData({
-    fio: 'Куликов Владимир Алексеевич',
-    email: 'vovakuliov@ya.ru',
-    phone: '+7(111)222-33-11'
-})
+	fio: 'Куликов Владимир Алексеевич',
+	email: 'vovakuliov@ya.ru',
+	phone: '+7(111)222-33-11'
+});
