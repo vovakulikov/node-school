@@ -1,3 +1,10 @@
+
+/**
+ *  Обьект полезными функциями. Была бы сборка,
+ *  такой обьект был вынесен в отдельный файл и
+ *  харнил все полезные статические функции для 
+ *  разных классов приложения.
+ */
 const utils = {
 	makeRequest: (method, URL, body = null) => {
 		return new Promise((resolve, reject) => {
@@ -19,8 +26,38 @@ const utils = {
 	}
 };
 
+/**
+ * Исходный класс работы с формой
+ */
 class CustomForm {
-	constructor({ formElement, submitButton, trackedInputs, resultContainer }) {
+
+/**
+ * Интерфейс для конфигурационного обьекта
+ * @typedef {Object} Configuration
+ * @property {Object} formElement - Обьект элемента формы
+ * @property {string[]} trackedInputs - Отслеживаемые поля (имя поля) для занесения данных
+ * @property {Object} submitButton - Обьект кнопки для отправки формы.
+ * @property {Object} resultContainer - Обьект элемента для рендеринга результата ответа от сервера.
+ */
+
+/**
+  * Интерфейс обьекта валидации формы
+  * @typedef {Object} ValidateObject
+  */
+
+
+
+	/**
+     * Конструктор класса. 
+     * Инициализирует переменные и настройки всего класса.
+     * Например обьект стратегии валидации инпута.
+     * Запускает функцию инициализации обработциков события 
+     * 
+     * @param {Configuration} config 
+     */
+	constructor(config) {
+		const { formElement, submitButton, trackedInputs, resultContainer } = config;
+
 		this.form = formElement;
 		this.trackedInputs = trackedInputs;
 		this.submitButton = submitButton;
@@ -64,6 +101,9 @@ class CustomForm {
 		this.addEventListeners();
 	}
 
+	/**
+     * Инициализация обработчиков событий
+     */
 	addEventListeners() {
 		this.submitButton.addEventListener('click', e => {
 			e.preventDefault();
@@ -71,6 +111,10 @@ class CustomForm {
 		});
 	}
 
+    /**
+     * 
+     * @param {*} param0 
+     */
 	highlightErrorFields({ errorFields }) {
 		errorFields.forEach(errorField => {
 			this.form.elements[errorField].classList.add('error');
