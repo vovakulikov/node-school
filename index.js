@@ -22,10 +22,12 @@ const utils = {
 
 
 class CustomForm {
-    constructor ({formElement, submitButton, trackedInputs}) {
+    constructor ({formElement, submitButton, trackedInputs, resultContainer}) {
+
         this.form = formElement;
         this.trackedInputs = trackedInputs;
         this.submitButton = submitButton;
+        this.resultContainer = resultContainer;
 
         this.validateStrategy =  {
 
@@ -63,7 +65,10 @@ class CustomForm {
     }
 
     addEventListeners() {
-        this.submitButton.addEventListener('click', this.submit.bind(this))
+        this.submitButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.submit();
+        });
     }
 
     highlightErrorFields ({ errorFields }) {
@@ -91,23 +96,44 @@ class CustomForm {
     }
 
     changeUIBySuccess () {
-        console.log('success')
+        console.log('success', this);
+
+        this.resultContainer.classList.add('success');
+        this.resultContainer.innerHTML = 'Success';
+
+        this.setDisabledButton(false);
     }
 
     changeUIByError (res) {
-        console.log('error ', res)
+        console.log('error ', res);
+
+        this.resultContainer.classList.add('error');
+        this.resultContainer.innerHTML = res.reason;
+
+        this.setDisabledButton(false);
+    }
+
+    changeUIByProgress () {
+        this.resultContainer.classList.add('progress');
+    }
+
+    setDisabledButton (state) {
+        this.submitButton.disabled = state;
     }
 
     resetUIContainer() {
         this.resultContainer.classList.remove('success');
         this.resultContainer.classList.remove('error');
-        this.resultContainer.classList.remove('progress');.
+        this.resultContainer.classList.remove('progress');
 
-        this.resetUIContainer.innerHTML = '';
+        this.resultContainer.innerHTML = '';
     }
 
     repeatRequest (res) {
         console.log('repeat ', res)
+
+        this.changeUIByProgress();
+        setTimeout(this.submit.bind(this), res.timeout);
     }
 
     makeRequest () {
@@ -126,19 +152,10 @@ class CustomForm {
         }
 
         this.resetUIContainer();
-        strategy[resObject.status](resObject);
+        strategy[resObject.status].apply(this, [resObject]);
     }
 
-    submit(e) {
-        e.preventDefault();
-        const formValidate = this.validate();
 
-        if (formValidate.isValid) {
-            this.makeRequest()
-            .then(this.pickAction.bind(this))
-            .catch()   
-        }
-    }
 
     validate () {
         const elements = Array.from(this.form.elements);
@@ -162,7 +179,6 @@ class CustomForm {
         return validateData;
     }
 
-
     getData () {
         const elements = Array.from(this.form.elements);
 
@@ -174,7 +190,6 @@ class CustomForm {
             return formData; 
         }, {});
     }
-
     
     setData (data) {
         this.trackedInputs.forEach((name) => {
@@ -184,12 +199,28 @@ class CustomForm {
         });
     }
 
+    submit() {
+        console.log('---------ЗАПРОС НА СЕРВЕР-----------');
+    
+        const formValidate = this.validate();
+
+        if (formValidate.isValid) {
+            this.setDisabledButton(true);
+            this.makeRequest()
+                .then(this.pickAction.bind(this))
+                .catch()   
+        } else {
+            this.setDisabledButton(false);
+        }
+    }
+
 }
 
 const form = new CustomForm({
     formElement: document.querySelector('#myForm'), 
     submitButton: document.querySelector('#submitButton'),
-    trackedInputs: ['fio','phone','email']
+    trackedInputs: ['fio','phone','email'],
+    resultContainer: document.querySelector('#resultContainer')
 });
 
 form.setData({
