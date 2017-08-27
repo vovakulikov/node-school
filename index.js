@@ -178,14 +178,18 @@ class CustomForm {
 	}
 
 	/**
-	 * Установить кнопку
+	 * Установить кнопку с сотояние disabled 
+	 * в зависимости от параметра state
 	 * 
-	 * @param {boolean} state 
+	 * @param {boolean} state - состояние свойства disabled
 	 */
 	setDisabledButton(state) {
 		this.submitButton.disabled = state;
 	}
 
+	/**
+	 *  Метод сброс стилей у коннейнера ответа от сервера.
+	 */
 	resetUIContainer() {
 		this.resultContainer.classList.remove('success');
 		this.resultContainer.classList.remove('error');
@@ -194,12 +198,20 @@ class CustomForm {
 		this.resultContainer.innerHTML = '';
 	}
 
+	/**
+	 * Функция, повтора логики отправки формы.
+	 * 
+	 * @param {Object} res 
+	 */
 	repeatRequest(res) {
-
 		this.changeUIByProgress();
 		setTimeout(this.submit.bind(this), res.timeout);
 	}
 
+	/**
+	 * Метод запроса к серверу по URL указанном в атрибуте action формы
+	 * @returns {Promise}
+	 */
 	makeRequest() {
 		const URL = this.form.action;
 		const method = this.form.method;
@@ -207,6 +219,12 @@ class CustomForm {
 		return utils.makeRequest(method, URL);
 	}
 
+	/**
+	 * Выбирает раекцию ответа программы 
+	 * в зависимости от типа ответа сервера
+	 * 
+	 * @param {Object} responce 
+	 */
 	pickAction(responce) {
 		const resObject = JSON.parse(responce);
 		const strategy = {
@@ -220,11 +238,11 @@ class CustomForm {
 	}
 
 	/**
-  * Интерфейс обьекта валидации формы
-  * @typedef {Object} ValidateObject
-  * @property {boolean} isValid - признак валидации
-  * @property {string[]} errorFields - Имена инпутов не прошедших валидацию
-*/
+  	* Интерфейс обьекта валидации формы
+	* @typedef {Object} ValidateObject
+	* @property {boolean} isValid - признак валидации
+	* @property {string[]} errorFields - Имена инпутов не прошедших валидацию
+	*/
 
 	/**
 	 * Метод валидации формы по стратегиям для каждого инпута
@@ -241,7 +259,9 @@ class CustomForm {
 
 				if (!currentStrategy) return validateData;
 
-				if (!currentStrategy(input.value)) {
+				const hasValidateError = (!currentStrategy(input.value));
+
+				if (hasValidateError) {
 					validateData.isValid = false;
 					validateData.errorFields.push(name);
 				}
@@ -291,7 +311,6 @@ class CustomForm {
 		});
 	}
 
-
 	/**
 	 * Метод submit выполняет валидацию полей и
 	 * отправку ajax-запроса, если валидация пройдена. 
@@ -321,3 +340,13 @@ form.setData({
 	email: 'vovakuliov@ya.ru',
 	phone: '+7(111)222-33-11'
 });
+
+// console.log(form.validate())
+// console.log(form.getData())
+
+// form.setData({
+// 	phone: '+7(111)222-33-1'
+// });
+
+// console.log(form.validate())
+// console.log(form.getData())
