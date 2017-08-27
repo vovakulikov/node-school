@@ -4,6 +4,94 @@
     box-sizing: border-box;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+    font-family: 'Open Sans';
+}
+
+@font-face {
+    font-family: "Open Sans";
+    src: url("/fonts/OpenSans-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Open Sans";
+    src: url("/fonts/OpenSans-Italic.ttf");
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "Open Sans";
+    src: url("/fonts/OpenSans-Bold.ttf");
+    font-weight: 700;
+}
+
+
+/* -------- custom style ----------- */
+
+.form-page  {
+    display: flex;
+    min-height: 100%;
+}
+
+.form-page__main-section {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.section__content {
+    padding-top: 20px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-form__input-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+}
+
+.contact-form__label {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 5px;
+}
+
+.label__main-text {
+    font-size: 13px;
+    font-weight: 700;
+}
+.label__caption-text {
+    font-size: 11px;
+    color: gray;
+    font-style: italic;
+}
+
+.contact-form__input {
+    padding: 10px 10px 10px 5px;
+    font-size: 15px;
+    border: none;
+    background-color: #f3f2f2;
+}
+
+.contact-form__submit-button {
+    align-self: flex-start;
+    padding: 5px 10px;
+    border: 2px solid yellow;
+    background: none;
+    font-weight: 700;
+    margin-top: 20px;
+    background: yellow;
+    cursor: pointer;
+}
+
+
 .error {
-     border: 1px solid red;
+    border: 1px solid red;
 }

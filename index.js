@@ -335,11 +335,11 @@ const form = new CustomForm({
 	resultContainer: document.querySelector('#resultContainer')
 });
 
-form.setData({
-	fio: 'Куликов Владимир Алексеевич',
-	email: 'vovakuliov@ya.ru',
-	phone: '+7(111)222-33-11'
-});
+// form.setData({
+// 	fio: 'Куликов Владимир Алексеевич',
+// 	email: 'vovakuliov@ya.ru',
+// 	phone: '+7(111)222-33-11'
+// });
 
 // console.log(form.validate())
 // console.log(form.getData())

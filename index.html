@@ -8,15 +8,47 @@
     <title>Yandex Node</title>
 </head>
 <body>
-    <form id="myForm" action="/static/progress.json">
-        <input type="text" name="fio" />
-        <input type="text" name="email" />
-        <input type="tel" name="phone" />
-    
-        <button id="submitButton">Send</button>
-    </form>
+    <main class="form-page">
 
-    <div id="resultContainer"></div>
+        <section class="form-page__main-section">
+            <h1>Test form for Yandex node.js school</h1>
+
+            <div class="section__content"> 
+                <form  class="contact-form" id="myForm" action="/static/progress.json">
+
+                    <div class="contact-form__input-group">
+                        <label class="contact-form__label" for="contact__fio" >
+                                <span class="label__main-text">ФИО</span>
+                                <span class="label__caption-text">Ровно три слова</span>
+                        </label>
+                        <input class="contact-form__input" id="contact__fio" type="text" name="fio" placeholder="Куликов Владимир Алексеевич" />
+                    </div>
+                    
+                    <div class="contact-form__input-group">
+                        <label class="contact-form__label" for="contact__email" >
+                            <span class="label__main-text">Email</span>
+                            <span class="label__caption-text">Допустимые домены: ya.ru, yandex.ru, yandex.ua, yandex.by, yandex.kz, yandex.com</span>
+                        </label>
+                        <input class="contact-form__input" id="contact__email" type="email" name="email" placeholder="example@ya.ru"/>
+                    </div>
+
+                    <div class="contact-form__input-group">
+                        <label class="contact-form__label" for="contact__phone">
+                            <span class="label__main-text">Телефон</span>
+                            <span class="label__caption-text">Формат +7(999)999-99-99</span>
+                        </label>
+                        <input class="contact-form__input" id="contact__phone" type="tel" name="phone" placeholder="+7(111)222-33-11"/>
+                    </div>
+                    
+
+                    <button class="contact-form__submit-button" id="submitButton">Отправить</button>
+                </form>
+                <div id="resultContainer"></div>
+            </div>
+
+        </section>
+
+    </main>
 
     <script src='index.js'></script>
 </body>
