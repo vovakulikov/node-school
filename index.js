@@ -328,25 +328,9 @@ class CustomForm {
 	}
 }
 
-const form = new CustomForm({
+const MyForm = new CustomForm({
 	formElement: document.querySelector('#myForm'),
 	submitButton: document.querySelector('#submitButton'),
 	trackedInputs: ['fio', 'phone', 'email'],
 	resultContainer: document.querySelector('#resultContainer')
 });
-
-// form.setData({
-// 	fio: 'Куликов Владимир Алексеевич',
-// 	email: 'vovakuliov@ya.ru',
-// 	phone: '+7(111)222-33-11'
-// });
-
-// console.log(form.validate())
-// console.log(form.getData())
-
-// form.setData({
-// 	phone: '+7(111)222-33-1'
-// });
-
-// console.log(form.validate())
-// console.log(form.getData())

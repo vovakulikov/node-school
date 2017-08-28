@@ -95,3 +95,21 @@ html, body {
 .error {
     border: 1px solid red;
 }
+
+#resultContainer {
+    padding: 20px 10px;
+    margin-top: 15px;
+    font-weight: 700;
+}
+
+.success {
+    background: rgba(76, 175, 80, 0.46);
+}
+
+#resultContainer.error {
+    background: rgba(244, 67, 54, 0.67);
+}
+
+#resultContainer.progress {
+    background: rgba(255, 193, 7, 0.67);
+}
